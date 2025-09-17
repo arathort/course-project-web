@@ -1,0 +1,169 @@
+﻿using Barabas.Models;
+using Barabas.Repositories.TicketRepository;
+using Barabas.Services.EventService;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace Barabas.Areas.Manager.Controllers
+{
+    [Authorize(Roles = "Manager,Admin")]
+    [Area("Manager")]
+    public class EventsController : Controller
+    {
+        private readonly IEventService _eventService;
+        private readonly ITicketRepository _ticketRepository;
+
+        public EventsController(IEventService eventService, ITicketRepository ticketRepository)
+        {
+            _eventService = eventService;
+            _ticketRepository = ticketRepository;
+        }
+
+        // GET: Manager/Events
+        public async Task<IActionResult> Index()
+        {
+            return View(await _eventService.GetEventsAsync());
+        }
+
+        // GET: Manager/Events/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var @event = await _eventService.GetEventById((int)id);
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            return View(@event);
+        }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Location,Date,Image,CreatedBy,Price,EventCategoryId")] Event @event, int TicketCount)
+        {
+            if (@event.Date.Kind == DateTimeKind.Unspecified)
+            {
+                @event.Date = DateTime.SpecifyKind(@event.Date, DateTimeKind.Utc);
+            }
+
+            if (ModelState.IsValid)
+            {
+                await _eventService.Add(@event);
+
+                for (int i = 1; i <= TicketCount; i++)
+                {
+                    Ticket ticket = new()
+                    {
+                        EventId = @event.Id,
+                        SeatNumber = i
+                    };
+
+                    await _ticketRepository.Add(ticket);
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(@event);
+        }
+
+
+
+        // GET: Manager/Events/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var @event = await _eventService.GetEventById((int)id);
+            if (@event == null)
+            {
+                return NotFound();
+            }
+            return View(@event);
+        }
+
+        // POST: Manager/Events/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, [Bind("Id,Name,Description,Location,Date,Image,CreatedBy,Price,EventCategoryId")] Event @event)
+        {
+            if (id != @event.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _eventService.Update(@event);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EventExists(@event.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(@event);
+        }
+
+        // GET: Manager/Events/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var @event = await _eventService.GetEventById((int)id);
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            return View(@event);
+        }
+
+        // POST: Manager/Events/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var @event = await _eventService.GetEventById((int)id);
+            if (@event != null)
+            {
+                _eventService.Remove(@event);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool EventExists(int id)
+        {
+            return _eventService.GetEventById(id) != null;
+        }
+    }
+}

@@ -1,0 +1,107 @@
+﻿@model IEnumerable<Barabas.Models.Event>
+
+@{
+    ViewData["Title"] = "Home Page";
+    int maxDescriptionLength = 100;
+    var categories = ViewBag.Categories as List<Barabas.Models.EventCategory>;
+}
+
+<div class="text-center mb-4">
+    <a>Vlad Vasiliev</a>
+    <div>Group: SEs-25-2, KhNU</div>
+    <div>
+        Service for buying event tickets
+
+    </div>
+    <h1 class="display-4">Upcoming Events</h1>
+
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Filters</h5>
+                    
+                    <form method="get" action="@Url.Action("Index", "Home")">
+                        <div class="mb-3">
+                            <input type="text" name="searchQuery" class="form-control" value="@Context.Request.Query["searchQuery"]" placeholder="Enter event name" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="categoryId" class="form-label">Category</label>
+                            <select name="categoryId" class="form-control" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                @foreach (var category in categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="dateFrom" class="form-label">Date From</label>
+                            <input type="date" name="dateFrom" class="form-control" value="@Context.Request.Query["dateFrom"]" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="dateTo" class="form-label">Date To</label>
+                            <input type="date" name="dateTo" class="form-control" value="@Context.Request.Query["dateTo"]" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="minPrice" class="form-label">Min Price</label>
+                            <input type="number" name="minPrice" class="form-control" value="@Context.Request.Query["minPrice"]" placeholder="0" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="maxPrice" class="form-label">Max Price</label>
+                            <input type="number" name="maxPrice" class="form-control" value="@Context.Request.Query["maxPrice"]" placeholder="1000" />
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="row">
+                @foreach (var ev in Model)
+                {
+                    <div class="col-md-4 d-flex align-items-stretch mb-4">
+                        <div class="card shadow-sm h-100">
+                            <img src="@ev.Image" class="card-img-top" alt="@ev.Name" style="height: 200px; object-fit: cover;">
+                            
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title text-center">@ev.Name</h5>
+
+                                <p class="card-text">
+                                    @{
+                                        var shortDescription = ev.Description.Length > maxDescriptionLength
+                                            ? ev.Description.Substring(0, maxDescriptionLength) + "..."
+                                            : ev.Description;
+                                    }
+                                    @shortDescription
+                                </p>
+
+                                <div class="mt-auto">
+                                    <p class="card-text"><small class="text-muted">Location: @ev.Location</small></p>
+                                    <p class="card-text"><small class="text-muted">Date: @ev.Date.ToString("dd MMM yyyy")</small></p>
+
+                                    <div class="d-grid">
+                                        <a href="@Url.Action("Details", "Events", new { id = ev.Id })" class="btn btn-primary">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

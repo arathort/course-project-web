@@ -1,0 +1,77 @@
+﻿@model List<Barabas.ViewModels.PurchasedTicketViewModel>
+
+<h2 class="text-center mb-4">Your Purchased Tickets</h2>
+
+<div class="container">
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Ticket ID</th>
+                <th>Event</th>
+                <th>Event Date</th>
+                <th>Location</th>
+                <th>Seat Number</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in Model)
+            {
+                <tr>
+                    <td>@ticket.TicketId</td>
+                    <td>@ticket.EventName</td>
+                    <td>@ticket.EventDate.ToString("g")</td>
+                    <td>@ticket.Location</td>
+                    <td>@ticket.SeatNumber</td>
+                    <td>@ticket.Price.ToString("C")</td> 
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="text-end mt-3">
+        <h4>
+            Total Price:
+            <strong>
+                @Model.Sum(t => t.Price).ToString("C")
+            </strong>
+        </h4>
+    </div>
+</div>
+
+<style>
+    h2 {
+        color: #007bff;
+        margin-bottom: 20px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    th {
+        background-color: #343a40;
+        color: white;
+    }
+
+    .table {
+        margin-top: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    td {
+        vertical-align: middle;
+    }
+
+    h4 {
+        color: #28a745;
+    }
+
+    .container {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
