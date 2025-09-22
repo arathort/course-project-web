@@ -21,25 +21,20 @@ namespace Barabas.Controllers
             _eventCategoryService = eventCategoryService;
         }
 
-        // Updated Index action to handle filters
         public async Task<IActionResult> Index(int? categoryId, DateTime? dateFrom, DateTime? dateTo, float? minPrice, float? maxPrice, string searchQuery)
         {
             IEnumerable<Event> events;
 
-            // Get categories for the dropdown
             IEnumerable<EventCategory> categories = _eventCategoryService.GetEventsCategories();
             ViewBag.Categories = categories;
 
-            // Fetch events and apply filters if provided
             events = await _eventService.GetEventsAsync();
 
-            // Filter by category
             if (categoryId.HasValue)
             {
                 events = events.Where(e => e.EventCategoryId == categoryId.Value);
             }
 
-            // Filter by date range
             if (dateFrom.HasValue)
             {
                 events = events.Where(e => e.Date >= dateFrom.Value);
@@ -50,7 +45,6 @@ namespace Barabas.Controllers
                 events = events.Where(e => e.Date <= dateTo.Value);
             }
 
-            // Filter by price range
             if (minPrice.HasValue)
             {
                 events = events.Where(e => e.Price >= minPrice.Value);

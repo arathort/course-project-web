@@ -10,7 +10,7 @@ namespace Barabas.Models
         public string Description { get;  set; } 
         public string Location { get;  set; } 
         public DateTime Date { get; set; } 
-        public string Image { get; set; } 
+        public string? Image { get; set; } 
         [Required]
         public int CreatedBy { get; set; }
         public float Price { get; set; }
