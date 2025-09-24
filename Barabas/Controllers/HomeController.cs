@@ -30,37 +30,14 @@ namespace Barabas.Controllers
 
             events = await _eventService.GetEventsAsync();
 
-            if (categoryId.HasValue)
-            {
-                events = events.Where(e => e.EventCategoryId == categoryId.Value);
-            }
-
-            if (dateFrom.HasValue)
-            {
-                events = events.Where(e => e.Date >= dateFrom.Value);
-            }
-
-            if (dateTo.HasValue)
-            {
-                events = events.Where(e => e.Date <= dateTo.Value);
-            }
-
-            if (minPrice.HasValue)
-            {
-                events = events.Where(e => e.Price >= minPrice.Value);
-            }
-
-            if (maxPrice.HasValue)
-            {
-                events = events.Where(e => e.Price <= maxPrice.Value);
-            }
-
+            if (categoryId.HasValue) events = events.Where(e => e.EventCategoryId == categoryId.Value);
+            if (dateFrom.HasValue) events = events.Where(e => e.Date >= dateFrom.Value);
+            if (dateTo.HasValue) events = events.Where(e => e.Date <= dateTo.Value);
+            if (minPrice.HasValue) events = events.Where(e => e.Price >= minPrice.Value);
+            if (maxPrice.HasValue) events = events.Where(e => e.Price <= maxPrice.Value);
             if (!string.IsNullOrEmpty(searchQuery))
-            {
-                events = events.Where(e => e.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
-            }
-
-
+                events = events.Where(e => e.Name.Contains(searchQuery));
+       
             return View(events);
         }
 
