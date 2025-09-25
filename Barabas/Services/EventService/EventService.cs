@@ -38,6 +38,7 @@ namespace Barabas.Services.EventService
         public async Task Remove(Event entity)
         {
             await _repository.Delete(entity.Id);
+
         }
 
         public async Task Update(Event entity)

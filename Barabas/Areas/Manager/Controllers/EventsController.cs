@@ -111,7 +111,7 @@ namespace Barabas.Areas.Manager.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,Name,Description,Location,Date,Image,CreatedBy,Price,EventCategoryId")] Event @event)
+        public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name,Description,Location,Date,Image,CreatedBy,Price,EventCategoryId")] Event @event)
         {
             if (id != @event.Id)
             {
@@ -126,7 +126,7 @@ namespace Barabas.Areas.Manager.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!EventExists(@event.Id))
+                    if (!await EventExists(@event.Id))
                     {
                         return NotFound();
                     }
@@ -165,15 +165,17 @@ namespace Barabas.Areas.Manager.Controllers
             var @event = await _eventService.GetEventById((int)id);
             if (@event != null)
             {
-                _eventService.Remove(@event);
+                await _eventService.Remove(@event);
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private bool EventExists(int id)
+        private async Task<bool> EventExists(int id)
         {
-            return _eventService.GetEventById(id) != null;
+            return await _eventService.GetEventById(id) != null;
         }
+
+
     }
 }

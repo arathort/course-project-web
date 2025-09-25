@@ -21,7 +21,7 @@ namespace Barabas.Repositories.EventRepository
 
         public async Task Delete(int id)
         {
-            var eventToDelete = await GetByID(id);
+            var eventToDelete = await _context.Events.FindAsync(id);
             if (eventToDelete != null)
             {
                 _context.Events.Remove(eventToDelete);
@@ -29,15 +29,22 @@ namespace Barabas.Repositories.EventRepository
             }
         }
 
+
         public async Task<List<Event>> GetAll()
         {
-            return await _context.Events.ToListAsync();
+            return await _context.Events
+                .AsNoTracking()
+                .ToListAsync();
         }
 
-        public async Task<Event> GetByID(int id)
+
+        public async Task<Event?> GetByID(int id)
         {
-            return await _context.Events.FirstOrDefaultAsync(m => m.Id == id);
+            return await _context.Events
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
+
 
         public async Task Update(Event e)
         {
