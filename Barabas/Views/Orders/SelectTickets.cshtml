@@ -1,44 +1,178 @@
 ﻿@model Barabas.Models.TicketSelectionViewModel
 
-<h2 class="text-center mb-4">Select Tickets for @Model.EventName</h2>
+@{
+    ViewData["Title"] = "Select Tickets";
 
-<form asp-action="ProcessTicketSelection" method="post" class="ticket-selection-form mx-auto" style="max-width: 600px;">
-    <input type="hidden" name="userId" value="@User.Identity.Name" />
+    int seatsPerRow = 10; 
+    int totalSeats = Model.AllSeats.Count;
+    int totalRows = (int)Math.Ceiling(totalSeats / (double)seatsPerRow);
+}
 
-    <div class="form-group mb-3">
-        <label for="ticketDropdown" class="form-label">Available Seats</label>
-        <select id="ticketDropdown" name="ticketId" class="form-select" required>
-            <option value="" disabled selected>Select a seat</option>
-            @for (var i = 0; i < Model.AvailableSeats.Count; i++)
-            {
-                <option value="@Model.AvailableTicketIds[i]">Seat @Model.AvailableSeats[i]</option>
-            }
-        </select>
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4 fw-bold text-primary">🎟 Choose Your Seat for @Model.EventName</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="seat-map-wrapper shadow-lg p-4 rounded-4 bg-white">
+                <h5 class="text-center mb-3 text-secondary">Hall Layout</h5>
+
+                <div id="seatMap" class="seat-map d-flex flex-column align-items-center">
+                    @for (int row = 0; row < totalRows; row++)
+                    {
+                        <div class="seat-row d-flex justify-content-center mb-2">
+                            @for (int i = 0; i < seatsPerRow; i++)
+                            {
+                                int index = row * seatsPerRow + i;
+                                if (index >= totalSeats) { break; }
+
+                                var seatNumber = Model.AllSeats[index];
+
+                                if (Model.TakenSeats.Contains(seatNumber))
+                                {
+                                    <div class="seat taken" title="Seat @seatNumber (Taken)">
+                                        @seatNumber
+                                    </div>
+                                }
+                                else if (Model.AvailableSeats.Contains(seatNumber))
+                                {
+                                    var seatIndex = Model.AvailableSeats.IndexOf(seatNumber);
+                                    var ticketId = Model.AvailableTicketIds[seatIndex];
+                                    <div class="seat available"
+                                         data-seat="@seatNumber"
+                                         data-ticketid="@ticketId"
+                                         title="Seat @seatNumber">
+                                        @seatNumber
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="seat unknown">@seatNumber</div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+
+                <form asp-action="ProcessTicketSelection" method="post" id="ticketForm" class="text-center mt-4">
+                    <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+                    <input type="hidden" id="selectedSeat" name="ticketId" value="" />
+
+                    <button type="submit" id="buyBtn" class="btn btn-gradient btn-lg fw-semibold" disabled>
+                        Buy Selected Ticket
+                    </button>
+                </form>
+
+                <div class="legend mt-4 text-center">
+                    <span class="seat available me-2"></span> Available
+                    <span class="seat selected ms-4 me-2"></span> Selected
+                    <span class="seat taken ms-4 me-2"></span> Taken
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="@Url.Action("Index", "Home")" class="text-decoration-none text-muted">
+                    ← Back to Events
+                </a>
+            </div>
+        </div>
     </div>
-
-    <div class="text-center">
-        <input type="submit" value="Buy Ticket" class="btn btn-success btn-lg" />
-    </div>
-</form>
+</div>
 
 <style>
-    .ticket-selection-form {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    body {
+        background-color: #f5f7fa;
     }
 
-    h2 {
-        color: #007bff;
+    .seat-map-wrapper {
+        transition: box-shadow 0.3s ease;
     }
 
-    .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
+        .seat-map-wrapper:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+    .seat-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
     }
 
-    .btn-success:hover {
-        background-color: #218838;
+    .seat {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        text-align: center;
+        line-height: 40px;
+        font-size: 0.9rem;
+        transition: all 0.25s ease;
+        user-select: none;
+    }
+
+        .seat.available {
+            background-color: #e3f2fd;
+            border: 2px solid #90caf9;
+            cursor: pointer;
+        }
+
+            .seat.available:hover {
+                background-color: #bbdefb;
+                transform: scale(1.1);
+            }
+
+        .seat.selected {
+            background-color: #42a5f5;
+            border: 2px solid #1e88e5;
+            color: white;
+            cursor: pointer;
+        }
+
+        .seat.taken {
+            background-color: #b0bec5;
+            border: 2px solid #90a4ae;
+            color: #f1f1f1;
+            cursor: not-allowed;
+        }
+
+    .btn-gradient {
+        background: linear-gradient(90deg, #007bff 0%, #0056d6 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 40px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-gradient:hover:enabled {
+            transform: scale(1.03);
+            background: linear-gradient(90deg, #0056d6 0%, #003c9b 100%);
+        }
+
+        .btn-gradient:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    .legend .seat {
+        display: inline-block;
+        width: 25px;
+        height: 25px;
+        margin: 0 4px;
     }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const seats = document.querySelectorAll(".seat.available");
+        const selectedSeatInput = document.getElementById("selectedSeat");
+        const buyBtn = document.getElementById("buyBtn");
+
+        seats.forEach(seat => {
+            seat.addEventListener("click", () => {
+                seats.forEach(s => s.classList.remove("selected"));
+                seat.classList.add("selected");
+                selectedSeatInput.value = seat.getAttribute("data-ticketid");
+                buyBtn.disabled = false;
+            });
+        });
+    });
+</script>

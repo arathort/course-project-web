@@ -6,102 +6,140 @@
     var categories = ViewBag.Categories as List<Barabas.Models.EventCategory>;
 }
 
-<div class="text-center mb-4">
-    <a>Vlad Vasiliev</a>
-    <div>Group: SEs-25-1, KhNU</div>
-    <div>
-        Service for buying event tickets
-
-    </div>
-    <h1 class="display-4">Upcoming Events</h1>
-
+<div class="text-center mb-5">
+    <h1 class="fw-bold mb-2 text-primary">Event Ticket Service</h1>
+    <p class="text-muted mb-1">Vlad Vasiliev — Group: SEs-25-1, KhNU</p>
+    <h3 class="mt-4">🎫 Upcoming Events</h3>
 </div>
 
 <div class="container">
     <div class="row">
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-body">
-                    <h5 class="card-title">Filters</h5>
-                    
-                    <form method="get" action="@Url.Action("Index", "Home")">
+                    <h5 class="card-title mb-3 text-center">🔍 Filters</h5>
+
+                    <form method="get" action="@Url.Action("Index", "Home")" class="needs-validation" novalidate>
                         <div class="mb-3">
-                            <input type="text" name="searchQuery" class="form-control" value="@Context.Request.Query["searchQuery"]" placeholder="Enter event name" />
+                            <input type="text" name="searchQuery" class="form-control rounded-pill px-3"
+                                   value="@Context.Request.Query["searchQuery"]" placeholder="Search event name..." />
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label for="categoryId" class="form-label">Category</label>
-                            <select name="categoryId" class="form-control" onchange="this.form.submit()">
+                            <label class="form-label fw-semibold">Category</label>
+                            <select name="categoryId" class="form-select" onchange="this.form.submit()">
                                 <option value="">All Categories</option>
                                 @foreach (var category in categories)
                                 {
-                                    <option value="@category.Id">@category.Name</option>
+                                    var selected = Context.Request.Query["categoryId"] == category.Id.ToString() ? "selected" : "";
+                                    @category
                                 }
                             </select>
-
                         </div>
 
-                        <div class="mb-3">
-                            <label for="dateFrom" class="form-label">Date From</label>
-                            <input type="date" name="dateFrom" class="form-control" value="@Context.Request.Query["dateFrom"]" />
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label fw-semibold">Date From</label>
+                                <input type="date" name="dateFrom" class="form-control"
+                                       value="@Context.Request.Query["dateFrom"]" />
+                            </div>
+                            <div class="col">
+                                <label class="form-label fw-semibold">Date To</label>
+                                <input type="date" name="dateTo" class="form-control"
+                                       value="@Context.Request.Query["dateTo"]" />
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="dateTo" class="form-label">Date To</label>
-                            <input type="date" name="dateTo" class="form-control" value="@Context.Request.Query["dateTo"]" />
+                        <div class="row mb-4">
+                            <div class="col">
+                                <label class="form-label fw-semibold">Min Price</label>
+                                <input type="number" name="minPrice" class="form-control"
+                                       value="@Context.Request.Query["minPrice"]" placeholder="0" />
+                            </div>
+                            <div class="col">
+                                <label class="form-label fw-semibold">Max Price</label>
+                                <input type="number" name="maxPrice" class="form-control"
+                                       value="@Context.Request.Query["maxPrice"]" placeholder="1000" />
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="minPrice" class="form-label">Min Price</label>
-                            <input type="number" name="minPrice" class="form-control" value="@Context.Request.Query["minPrice"]" placeholder="0" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="maxPrice" class="form-label">Max Price</label>
-                            <input type="number" name="maxPrice" class="form-control" value="@Context.Request.Query["maxPrice"]" placeholder="1000" />
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary rounded-pill">Apply Filters</button>
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary rounded-pill">Clear</a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-9">
-            <div class="row">
-                @foreach (var ev in Model)
-                {
-                    <div class="col-md-4 d-flex align-items-stretch mb-4">
-                        <div class="card shadow-sm h-100">
-                            <img src="@ev.Image" class="card-img-top" alt="@ev.Name" style="height: 200px; object-fit: cover;">
-                            
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title text-center">@ev.Name</h5>
+        <div class="col-lg-9">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info text-center py-4 rounded-4 shadow-sm">
+                    <h5>No events found 😢</h5>
+                    <p class="mb-0">Try adjusting your filters or search query.</p>
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @foreach (var ev in Model)
+                    {
+                        <div class="col-md-6 col-xl-4">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-card">
+                                <img src="@ev.Image" class="card-img-top" alt="@ev.Name"
+                                     style="height: 200px; object-fit: cover; transition: transform 0.3s ease;">
+                                <div class="card-body d-flex flex-column p-3">
+                                    <h5 class="card-title text-center fw-bold">@ev.Name</h5>
+                                    <p class="text-muted small mb-3 text-center">@ev.Location</p>
 
-                                <p class="card-text">
-                                    @{
-                                        var shortDescription = ev.Description.Length > maxDescriptionLength
-                                            ? ev.Description.Substring(0, maxDescriptionLength) + "..."
-                                            : ev.Description;
-                                    }
-                                    @shortDescription
-                                </p>
+                                    <p class="card-text flex-grow-1">
+                                        @{
+                                            var shortDescription = ev.Description.Length > maxDescriptionLength
+                                                ? ev.Description.Substring(0, maxDescriptionLength) + "..."
+                                                : ev.Description;
+                                        }
+                                        @shortDescription
+                                    </p>
 
-                                <div class="mt-auto">
-                                    <p class="card-text"><small class="text-muted">Location: @ev.Location</small></p>
-                                    <p class="card-text"><small class="text-muted">Date: @ev.Date.ToString("dd MMM yyyy")</small></p>
+                                    <div class="text-center mt-2 mb-3">
+                                        <span class="badge bg-light text-dark px-3 py-2 me-1">
+                                            📅 @ev.Date.ToString("dd MMM yyyy")
+                                        </span>
+                                        <span class="badge bg-primary px-3 py-2">
+                                            💰 @ev.Price.ToString("0.00") ₴
+                                        </span>
+                                    </div>
 
                                     <div class="d-grid">
-                                        <a href="@Url.Action("Details", "Events", new { id = ev.Id })" class="btn btn-primary">View Details</a>
+                                        <a href="@Url.Action("Details", "Events", new { id = ev.Id })"
+                                           class="btn btn-outline-primary rounded-pill fw-semibold">View Details</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            }
         </div>
     </div>
 </div>
+
+<style>
+    .hover-card:hover img {
+        transform: scale(1.05);
+    }
+
+    .hover-card:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+    }
+
+    input, select, button {
+        font-size: 0.95rem !important;
+    }
+</style>

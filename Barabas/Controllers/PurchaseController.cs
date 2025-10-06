@@ -28,14 +28,20 @@ namespace Barabas.Controllers
         {
             var ev = await _eventService.GetEventById(eventId);
 
-            var availableTickets = await _ticketService.GetAvailableTickets(eventId);
+            var tickets = await _ticketService.GetAvailableTickets(eventId);
+            var available = tickets.Where(t => t.IsActive).ToList();
+            var taken = tickets.Where(t => !t.IsActive).ToList();
 
             var model = new TicketSelectionViewModel
             {
                 EventName = ev.Name,
-                AvailableSeats = availableTickets.Select(t => t.SeatNumber).ToList(),
-                AvailableTicketIds = availableTickets.Select(t => t.Id).ToList() 
+                AllSeats = tickets.Select(t => t.SeatNumber).ToList(),
+                AvailableSeats = available.Select(t => t.SeatNumber).ToList(),
+                AvailableTicketIds = available.Select(t => t.Id).ToList(),
+                TakenSeats = taken.Select(t => t.SeatNumber).ToList()
             };
+
+
 
             return View(model);
         }
@@ -56,6 +62,11 @@ namespace Barabas.Controllers
         [HttpPost]
         public async Task<IActionResult> ProcessTicketSelection(string userId, int ticketId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             await _orderService.CreateOrder(userId, ticketId);
 
             return RedirectToAction("OrderSummary");
@@ -65,24 +76,34 @@ namespace Barabas.Controllers
         {
             return View();
         }
-
         [HttpGet]
         public async Task<IActionResult> PurchasedTickets()
         {
-            var userId = User.FindFirstValue(ClaimTypes.Name); 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
 
-            if (userId == null)
+            if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Login", "Account");
             }
-            var userOrders = await _orderService.GetOrdersByUserId(userId);
 
+            var userOrders = await _orderService.GetOrdersByUserId(userId);
             var purchasedTickets = new List<PurchasedTicketViewModel>();
 
             foreach (var order in userOrders)
             {
                 var ticket = await _ticketService.GetTicketById(order.TicketId);
+                if (ticket == null)
+                {
+                    Console.WriteLine($"⚠️ Ticket not found for TicketId = {order.TicketId}");
+                    continue;
+                }
+
                 var eventDetails = await _eventService.GetEventById(ticket.EventId);
+                if (eventDetails == null)
+                {
+                    Console.WriteLine($"⚠️ Event not found for EventId = {ticket.EventId}");
+                    continue;
+                }
 
                 purchasedTickets.Add(new PurchasedTicketViewModel
                 {
@@ -91,12 +112,13 @@ namespace Barabas.Controllers
                     SeatNumber = ticket.SeatNumber,
                     EventDate = eventDetails.Date,
                     Location = eventDetails.Location,
-                    Price = eventDetails.Price,
+                    Price = eventDetails.Price
                 });
             }
 
             return View(purchasedTickets);
         }
+
 
     }
 }

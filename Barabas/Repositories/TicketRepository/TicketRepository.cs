@@ -13,29 +13,25 @@ namespace Barabas.Repositories.TicketRepository
             _context = context;
         }
 
-        // Retrieve tickets by event ID
         public async Task<List<Ticket>> GetTicketsByEventId(int eventId)
         {
             return await _context.Tickets
-                                 .Where(t => t.EventId == eventId && !t.IsActive)
+                                 .Where(t => t.EventId == eventId)
                                  .ToListAsync();
         }
 
-        // Get a single ticket by its ID
         public async Task<Ticket> GetById(int ticketId)
         {
             return await _context.Tickets
                                  .FirstOrDefaultAsync(t => t.Id == ticketId);
         }
 
-        // Add a new ticket
         public async Task Add(Ticket ticket)
         {
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
         }
 
-        // Remove a ticket
         public async Task Delete(int ticketId)
         {
             var ticket = await GetById(ticketId);
@@ -46,7 +42,6 @@ namespace Barabas.Repositories.TicketRepository
             }
         }
 
-        // Update a ticket
         public async Task Update(Ticket ticket)
         {
             _context.Tickets.Update(ticket);

@@ -15,6 +15,7 @@ namespace Barabas.Services.TicketService
         public async Task<List<Ticket>> GetAvailableTickets(int eventId)
         {
             return await _ticketRepository.GetTicketsByEventId(eventId);
+            
         }
 
         public Task<Ticket> GetTicketById(int ticketId)
@@ -28,7 +29,7 @@ namespace Barabas.Services.TicketService
             if (ticket != null)
             {
                 ticket.SetNotActive();
-                _ = _ticketRepository.Update(ticket);
+                await _ticketRepository.Update(ticket);
                 return ticket;
             }
             return null;

@@ -4,28 +4,81 @@
     ViewData["Title"] = Model.Name;
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <img src="@Model.Image" alt="@Model.Name" class="img-fluid" style="max-width: 100%;">
-        </div>
-
-        <div class="col-md-8">
-            <h2>@Model.Name</h2>
-            <p><strong>Дата:</strong> @Model.Date.ToString("dd MMMM yyyy, HH:mm")</p>
-
-            <p><i class="fas fa-map-marker-alt"></i> @Model.Location</p>
-
-
-            <div>
-                <p><strong>Вартість:</strong> @Model.Price </p>
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="row g-0">
+            <div class="col-md-5">
+                <img src="@Model.Image" alt="@Model.Name" class="img-fluid h-100 w-100 object-fit-cover" style="max-height: 500px;">
             </div>
-            <a href="@Url.Action("SelectTickets", "Orders", new { eventId = Model.Id })" class="btn btn-primary">Buy Tickets</a>
+
+            <div class="col-md-7 p-4 p-lg-5 d-flex flex-column justify-content-between">
+                <div>
+                    <h1 class="fw-bold mb-3 text-primary">@Model.Name</h1>
+
+                    <div class="mb-3">
+                        <span class="badge bg-light text-dark fs-6 me-2 px-3 py-2">
+                            📅 @Model.Date.ToString("dd MMMM yyyy, HH:mm")
+                        </span>
+                        <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                            📍 @Model.Location
+                        </span>
+                    </div>
+
+                    <h4 class="fw-semibold text-success mb-4">
+                        💰 Price: @Model.Price.ToString("0.00") ₴
+                    </h4>
+
+                    <p class="text-secondary lh-base" style="max-height: 200px; overflow-y: auto;">
+                        @Model.Description
+                    </p>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row align-items-center gap-3 mt-4">
+                    <a href="@Url.Action("SelectTickets", "Orders", new { eventId = Model.Id })"
+                       class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">
+                        Buy Tickets
+                    </a>
+                    <a href="@Url.Action("Index", "Home")"
+                       class="btn btn-outline-secondary btn-lg rounded-pill px-5">
+                        ← Back
+                    </a>
+                </div>
+            </div>
         </div>
-            <p>@Model.Description</p>
     </div>
 </div>
 
-<div class="mt-3">
-    <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Назад</a>
-</div>
+<style>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    .card {
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #007bff 0%, #0056d6 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #0056d6 0%, #0040a8 100%);
+            transform: scale(1.03);
+        }
+
+    .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+    }
+
+</style>

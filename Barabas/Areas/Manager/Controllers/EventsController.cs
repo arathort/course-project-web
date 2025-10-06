@@ -94,7 +94,8 @@ namespace Barabas.Areas.Manager.Controllers
                     Ticket ticket = new()
                     {
                         EventId = @event.Id,
-                        SeatNumber = i
+                        SeatNumber = i,
+                        IsActive = true,
                     };
                     await _ticketRepository.Add(ticket);
                 }
@@ -122,7 +123,7 @@ namespace Barabas.Areas.Manager.Controllers
             {
                 try
                 {
-                    _eventService.Update(@event);
+                    await _eventService.Update(@event);
                 }
                 catch (DbUpdateConcurrencyException)
                 {

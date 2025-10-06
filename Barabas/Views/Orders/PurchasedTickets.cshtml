@@ -1,77 +1,95 @@
 ﻿@model List<Barabas.ViewModels.PurchasedTicketViewModel>
 
-<h2 class="text-center mb-4">Your Purchased Tickets</h2>
+@{
+    ViewData["Title"] = "My Tickets";
+}
 
-<div class="container">
-    <table class="table table-hover table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>Ticket ID</th>
-                <th>Event</th>
-                <th>Event Date</th>
-                <th>Location</th>
-                <th>Seat Number</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">🎟 Your Purchased Tickets</h1>
+        <p class="text-muted">Here you can view all your booked and purchased tickets.</p>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center mt-5">
+            <img src="/images/empty-tickets.svg" alt="No tickets" style="width: 200px; opacity: 0.8;">
+            <h4 class="mt-3 text-secondary">You haven't purchased any tickets yet.</h4>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary mt-3 px-4">
+                Browse Events
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
             @foreach (var ticket in Model)
             {
-                <tr>
-                    <td>@ticket.TicketId</td>
-                    <td>@ticket.EventName</td>
-                    <td>@ticket.EventDate.ToString("g")</td>
-                    <td>@ticket.Location</td>
-                    <td>@ticket.SeatNumber</td>
-                    <td>@ticket.Price.ToString("C")</td> 
-                </tr>
-            }
-        </tbody>
-    </table>
+                <div class="col-md-5 col-lg-4 m-3">
+                    <div class="ticket-card shadow-sm rounded-4 overflow-hidden bg-white border border-light">
+                        <div class="ticket-header text-white d-flex justify-content-between align-items-center px-3 py-2" style="background: linear-gradient(90deg, #007bff, #0056d6);">
+                            <span class="fw-semibold">@ticket.EventName</span>
+                            <span class="badge bg-light text-primary">@ticket.EventDate.ToString("dd MMM yyyy")</span>
+                        </div>
 
-    <div class="text-end mt-3">
-        <h4>
-            Total Price:
-            <strong>
-                @Model.Sum(t => t.Price).ToString("C")
-            </strong>
-        </h4>
-    </div>
+                        <div class="ticket-body p-3">
+                            <p class="mb-2"><i class="bi bi-geo-alt-fill text-primary"></i> <strong>@ticket.Location</strong></p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span><i class="bi bi-person-seat"></i> Seat: <strong>@ticket.SeatNumber</strong></span>
+                                <span class="text-success fw-semibold">@ticket.Price.ToString("C")</span>
+                            </div>
+                            <hr />
+                            <div class="text-center">
+                                <button class="btn btn-outline-primary btn-sm px-4" disabled>
+                                    <i class="bi bi-ticket-detailed"></i> Ticket ID: @ticket.TicketId
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-end mt-4">
+            <h4 class="fw-bold text-success">
+                Total: @Model.Sum(t => t.Price).ToString("C")
+            </h4>
+        </div>
+    }
 </div>
 
 <style>
-    h2 {
+    body {
+        background-color: #f4f7fb;
+    }
+
+    .ticket-card {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+    .ticket-header {
+        font-size: 1rem;
+        letter-spacing: 0.3px;
+    }
+
+    .ticket-body {
+        font-size: 0.95rem;
+    }
+
+    .btn-outline-primary {
+        border-radius: 30px;
+        border: 1px solid #007bff;
         color: #007bff;
-        margin-bottom: 20px;
+        transition: all 0.25s ease;
     }
 
-    .table-hover tbody tr:hover {
-        background-color: #f1f1f1;
-    }
-
-    th {
-        background-color: #343a40;
-        color: white;
-    }
-
-    .table {
-        margin-top: 20px;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    td {
-        vertical-align: middle;
-    }
-
-    h4 {
-        color: #28a745;
-    }
-
-    .container {
-        background-color: #f9f9f9;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
 </style>
