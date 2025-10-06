@@ -107,6 +107,26 @@ namespace Barabas.Areas.Manager.Controllers
             return View(@event);
         }
 
+        // GET: Manager/Events/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var @event = await _eventService.GetEventById((int)id);
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.EventCategories = _eventCategoryService.GetEventsCategories();
+
+            return View(@event);
+        }
+
+
         // POST: Manager/Events/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.

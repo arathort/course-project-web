@@ -1,0 +1,60 @@
+﻿@model Barabas.ViewModels.PurchasedTicketViewModel
+
+<div class="col-md-5 col-lg-4 m-3">
+    <div class="ticket-card shadow-sm rounded-4 overflow-hidden bg-white border border-light">
+        <div class="ticket-header text-white d-flex justify-content-between align-items-center px-3 py-2"
+             style="background: linear-gradient(90deg, #007bff, #0056d6);">
+            <span class="fw-semibold">@Model.EventName</span>
+            <span class="badge bg-light text-primary">@Model.EventDate.ToString("dd MMM yyyy")</span>
+        </div>
+
+        <div class="ticket-body p-3">
+            <p class="mb-2">
+                <i class="bi bi-geo-alt-fill text-primary"></i>
+                <strong>@Model.Location</strong>
+            </p>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span><i class="bi bi-person-seat"></i> Seat: <strong>@Model.SeatNumber</strong></span>
+                <span class="text-success fw-semibold">@Model.Price.ToString("C")</span>
+            </div>
+            <hr />
+            <div class="text-center">
+                <button class="btn btn-outline-primary btn-sm px-4" disabled>
+                    <i class="bi bi-ticket-detailed"></i> Ticket ID: @Model.TicketId
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .ticket-card {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+    .ticket-header {
+        font-size: 1rem;
+        letter-spacing: 0.3px;
+    }
+
+    .ticket-body {
+        font-size: 0.95rem;
+    }
+
+    .btn-outline-primary {
+        border-radius: 30px;
+        border: 1px solid #007bff;
+        color: #007bff;
+        transition: all 0.25s ease;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+</style>

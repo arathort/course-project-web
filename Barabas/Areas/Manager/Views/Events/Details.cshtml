@@ -2,67 +2,102 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Event Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="row g-0">
+            <div class="col-md-5">
+                <img src="@Model.Image" alt="@Model.Name"
+                     class="img-fluid h-100 w-100 object-fit-cover"
+                     style="max-height: 500px;">
+            </div>
 
-<div>
-    <h4>Event</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Location)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Location)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Date)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Date)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Image)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Image)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedBy)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedBy)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EventCategoryId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EventCategoryId)
-        </dd>
-    </dl>
+            <div class="col-md-7 p-4 p-lg-5 d-flex flex-column justify-content-between">
+                <div>
+                    <h1 class="fw-bold mb-3 text-primary">@Model.Name</h1>
+
+                    <div class="mb-3">
+                        <span class="badge bg-light text-dark fs-6 me-2 px-3 py-2">
+                            📅 @Model.Date.ToString("dd MMMM yyyy, HH:mm")
+                        </span>
+                        <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                            📍 @Model.Location
+                        </span>
+                    </div>
+
+                    <h4 class="fw-semibold text-success mb-4">
+                        💰 Price: @Model.Price.ToString("0.00") ₴
+                    </h4>
+
+                    <p class="text-secondary lh-base" style="max-height: 250px; overflow-y: auto;">
+                        @Model.Description
+                    </p>
+
+                    <p class="text-muted mt-3 mb-1">
+                        <strong>Category ID:</strong> @Model.EventCategoryId
+                    </p>
+                    <p class="text-muted">
+                        <strong>Created By (User ID):</strong> @Model.CreatedBy
+                    </p>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row align-items-center gap-3 mt-4">
+                    <a asp-action="Edit" asp-route-id="@Model.Id"
+                       class="btn btn-warning btn-lg rounded-pill px-5 shadow-sm">
+                        ✏️ Edit Event
+                    </a>
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary btn-lg rounded-pill px-5">
+                        ← Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<style>
+    body {
+        background-color: #f4f7fb;
+    }
+
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    .card {
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .btn-warning {
+        color: #fff;
+        background: linear-gradient(90deg, #f7b731, #f5a623);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-warning:hover {
+            background: linear-gradient(90deg, #f5a623, #f39c12);
+            transform: scale(1.03);
+        }
+
+    .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+</style>
