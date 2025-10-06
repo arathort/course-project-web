@@ -147,6 +147,51 @@ namespace Barabas.Controllers
             return View(@event);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImGoing(int eventId)
+        {
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+                return RedirectToAction("Login", "Account");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+                return Unauthorized();
+
+            bool alreadyGoing = await _context.EventAttendances
+                .AnyAsync(a => a.EventId == eventId && a.UserId == user.Id);
+
+            if (!alreadyGoing)
+            {
+                var attendance = new EventAttendance
+                {
+                    EventId = eventId,
+                    UserId = user.Id
+                };
+
+                _context.EventAttendances.Add(attendance);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Details", new { id = eventId });
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> WhoIsGoing(int eventId)
+        {
+            var attendees = await _context.EventAttendances
+                .Where(a => a.EventId == eventId)
+                .Include(a => a.User)
+                .Select(a => a.User.Username) 
+                .ToListAsync();
+
+            return Json(attendees);
+        }
+
+
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

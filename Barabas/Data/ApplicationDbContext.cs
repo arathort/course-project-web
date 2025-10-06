@@ -18,6 +18,7 @@ namespace Barabas.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<EventAttendance> EventAttendances { get; set; }
 
     }
 }
