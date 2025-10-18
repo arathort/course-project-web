@@ -3,6 +3,7 @@ using System;
 using Barabas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Barabas.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251015123258_ddrganizererification")]
+    partial class ddrganizererification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,37 +146,6 @@ namespace Barabas.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("OrderItem");
-                });
-
-            modelBuilder.Entity("Barabas.Models.OrganizerVerificationHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("VerifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("VerifiedByAdminId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("VerifiedByAdminId");
-
-                    b.ToTable("VerificationHistories");
                 });
 
             modelBuilder.Entity("Barabas.Models.Role", b =>
@@ -463,25 +435,6 @@ namespace Barabas.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Barabas.Models.OrganizerVerificationHistory", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "VerifiedByAdmin")
-                        .WithMany()
-                        .HasForeignKey("VerifiedByAdminId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-
-                    b.Navigation("VerifiedByAdmin");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

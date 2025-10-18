@@ -2,70 +2,157 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Event";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-warning text-dark py-3 rounded-top-4 d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Event</h3>
+            <a asp-action="Index" class="btn btn-outline-dark btn-sm px-3">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
 
-<h4>Event</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Location" class="control-label"></label>
-                <input asp-for="Location" class="form-control" />
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control" />
-                <span asp-validation-for="Date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Image" class="control-label"></label>
-                <input asp-for="Image" class="form-control" />
-                <span asp-validation-for="Image" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedBy" class="control-label"></label>
-                <input asp-for="CreatedBy" class="form-control" />
-                <span asp-validation-for="CreatedBy" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EventCategoryId" class="control-label"></label>
-                <input asp-for="EventCategoryId" class="form-control" />
-                <span asp-validation-for="EventCategoryId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        <div class="card-body p-4">
+            <form asp-action="Edit" id="editEventForm" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label fw-semibold">Event Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter event name" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Location" class="form-label fw-semibold">Location</label>
+                        <input asp-for="Location" class="form-control" placeholder="e.g., Lviv Arena" />
+                        <span asp-validation-for="Location" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Update event description..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Date" class="form-label fw-semibold">Date & Time</label>
+                        <input asp-for="Date" type="datetime-local" class="form-control" />
+                        <span asp-validation-for="Date" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Price" class="form-label fw-semibold">Ticket Price (₴)</label>
+                        <input asp-for="Price" type="number" class="form-control" min="0" step="0.01" />
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="EventCategoryId" class="form-label fw-semibold">Category</label>
+                        <select asp-for="EventCategoryId" class="form-select"
+                                asp-items="@(new SelectList(ViewBag.EventCategories, "Id", "Name", Model.EventCategoryId))">
+                            <option value="">-- Select category --</option>
+                        </select>
+                        <span asp-validation-for="EventCategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Image" class="form-label fw-semibold">Event Image</label>
+                        <input type="file" asp-for="Image" class="form-control" id="ImageFile" name="ImageFile" accept="image/*" />
+                        <small class="text-muted d-block mt-1">Upload a new image (jpg, png, gif, max 2 MB)</small>
+                        <span asp-validation-for="Image" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 text-center">
+                        <img id="previewImage"
+                             src="@Model.Image"
+                             alt="Current Image"
+                             class="img-thumbnail mt-3 shadow-sm"
+                             style="max-width: 250px; @(string.IsNullOrEmpty(Model.Image) ? "display:none;" : "")" />
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-warning text-dark px-5 fw-semibold">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        const imageInput = document.getElementById('ImageFile');
+        const preview = document.getElementById('previewImage');
+
+        imageInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            const maxSize = 2 * 1024 * 1024;
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Invalid file type. Allowed: JPG, PNG, GIF.");
+                this.value = '';
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert("File too large. Max size: 2 MB.");
+                this.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
 }
+
+<style>
+    body {
+        background-color: #f5f7fb;
+    }
+
+    .card {
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 10px 12px;
+    }
+
+    .btn-warning {
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-warning:hover {
+            transform: scale(1.03);
+            background-color: #e0a800;
+        }
+
+    .btn-outline-dark {
+        border-radius: 30px;
+    }
+
+    .card-header h3 {
+        font-weight: 600;
+    }
+</style>

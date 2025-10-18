@@ -4,50 +4,153 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Barabas</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Barabas.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056d6;
+            --text-dark: #1f1f1f;
+            --light-bg: #f7f9fc;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: var(--text-dark);
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.8rem 1.5rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary-dark) !important;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-nav .nav-link {
+            font-weight: 500;
+            color: #555 !important;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .navbar-nav .nav-link:hover {
+                color: var(--primary-color) !important;
+                transform: translateY(-1px);
+            }
+
+        .nav-item.active .nav-link {
+            color: var(--primary-color) !important;
+            font-weight: 600;
+        }
+
+        main {
+            padding-top: 20px;
+            padding-bottom: 60px;
+            min-height: 70vh;
+        }
+
+        footer {
+            background-color: #fff;
+            border-top: 1px solid #e4e7eb;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+            footer a {
+                color: var(--primary-dark);
+                text-decoration: none;
+                transition: color 0.2s ease;
+            }
+
+                footer a:hover {
+                    color: var(--primary-color);
+                    text-decoration: underline;
+                }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                transform: scale(1.03);
+                background: linear-gradient(90deg, var(--primary-dark), #003c99);
+            }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+    </style>
 </head>
+
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Barabas</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-lightning-charge-fill text-primary"></i> Barabas
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarMain" aria-controls="navbarMain"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse justify-content-between fade-in" id="navbarMain">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house"></i> Home
+                            </a>
                         </li>
 
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="PurchasedTickets">My tickets</a>
-                            </li>
-                        }
-
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Users" asp-action="Index">Manage Users</a>
+                                <a class="nav-link" asp-area="" asp-controller="Orders" asp-action="PurchasedTickets">
+                                    <i class="bi bi-ticket-perforated"></i> My Tickets
+                                </a>
                             </li>
                         }
 
                         @if (User.IsInRole("Manager"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Manager" asp-controller="Events" asp-action="Index">Manage Events</a>
+                                <a class="nav-link" asp-area="Manager" asp-controller="Events" asp-action="Index">
+                                    <i class="bi bi-calendar-event"></i> Manage Events
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="bi bi-speedometer2"></i> Admin Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                                    <i class="bi bi-people"></i> Manage Users
+                                </a>
                             </li>
                         }
                     </ul>
@@ -58,15 +161,18 @@
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="container mt-5 pt-4 fade-in">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="text-center">
         <div class="container">
-            &copy; 2024 - Barabas - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <span>
+                &copy; @DateTime.Now.Year - <strong>Barabas</strong> |
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+            </span>
         </div>
     </footer>
 

@@ -19,6 +19,6 @@ namespace Barabas.Data
         public DbSet<User> Users { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<EventAttendance> EventAttendances { get; set; }
-
+        public DbSet<OrganizerVerificationHistory> VerificationHistories { get; set; }
     }
 }

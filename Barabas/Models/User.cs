@@ -12,5 +12,7 @@ namespace Barabas.Models
         public string Password_Hash { get; set; } = Password_Hash;
         [Required]
         public int RoleId { get; set; } = RoleId;
+        public bool IsVerifiedOrganizer { get; set; } = false;
+
     }
 }

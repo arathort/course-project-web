@@ -3,10 +3,12 @@ using Barabas.Repositories.EventCategoryRepository;
 using Barabas.Repositories.EventRepository;
 using Barabas.Repositories.OrderRepository;
 using Barabas.Repositories.TicketRepository;
+using Barabas.Repositories.VerifyRepository;
 using Barabas.Services.EventCategoryService;
 using Barabas.Services.EventService;
 using Barabas.Services.OrderService;
 using Barabas.Services.TicketService;
+using Barabas.Services.VerificationService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +31,8 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IVerifyRepository, VerifyRepository>();
+builder.Services.AddScoped<IVerificationService, VerificationService>();
 
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)

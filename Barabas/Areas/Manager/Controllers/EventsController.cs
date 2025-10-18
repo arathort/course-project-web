@@ -138,7 +138,14 @@ namespace Barabas.Areas.Manager.Controllers
             {
                 return NotFound();
             }
-
+            if (@event.Date.Kind == DateTimeKind.Unspecified)
+            {
+                @event.Date = DateTime.SpecifyKind(@event.Date, DateTimeKind.Utc);
+            }
+            else if (@event.Date.Kind == DateTimeKind.Local)
+            {
+                @event.Date = @event.Date.ToUniversalTime();
+            }
             if (ModelState.IsValid)
             {
                 try

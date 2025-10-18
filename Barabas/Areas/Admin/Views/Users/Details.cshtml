@@ -1,27 +1,127 @@
-﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "User Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-    </dl>
-</div>
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+<div class="container my-5">
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info">@TempData["Message"]</div>
     }
-}
+
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+        <h2 class="fw-bold mb-3 text-primary">User Details</h2>
+
+        <dl class="row mb-4">
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.Id</dd>
+        </dl>
+
+        <div class="mb-4">
+            @if (ViewBag.IsOrganizer)
+            {
+                @if (ViewBag.IsVerified)
+                {
+                    <form asp-action="Unverify" method="post">
+                        <input type="hidden" name="userId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle"></i> Remove Verification
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="Verify" method="post">
+                        <input type="hidden" name="userId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-check-circle"></i> Verify Organizer
+                        </button>
+                    </form>
+                }
+            }
+            else
+            {
+                <div class="alert alert-secondary">
+                    <i class="bi bi-info-circle"></i> This user is not an organizer.
+                </div>
+            }
+        </div>
+
+
+        <hr />
+
+        <h4 class="fw-semibold text-secondary mb-3">
+            Verification History
+        </h4>
+
+        @if (ViewBag.History == null || ViewBag.History.Count == 0)
+        {
+            <p class="text-muted fst-italic">No verification actions yet.</p>
+        }
+        else
+        {
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Status</th>
+                        <th>Verified By (Admin)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in ViewBag.History)
+                    {
+                        <tr>
+                            <td>
+                                @if (record.IsVerified)
+                                {
+                                    <span class="text-success fw-bold">✅ Verified</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-bold">❌ Unverified</span>
+                                }
+                            </td>
+                            <td>
+                                @if (record.VerifiedByAdmin != null)
+                                {
+                                    <span class="text-primary">
+                                        <i class="bi bi-person-circle"></i> @record.VerifiedByAdmin.Email
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Unknown</span>
+                                }
+                            </td>
+                            <td>@record.VerifiedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        }
+
+        <a asp-action="Index" class="btn btn-outline-secondary mt-3">← Back to Users</a>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .card {
+        background-color: white;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+</style>
