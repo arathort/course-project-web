@@ -1,5 +1,6 @@
 ﻿using Barabas.Data;
 using Barabas.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +10,12 @@ namespace Barabas.Controllers
     public class EventsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public EventsController(ApplicationDbContext context)
+        public EventsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
@@ -22,20 +25,26 @@ namespace Barabas.Controllers
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var @event = await _context.Events.FirstOrDefaultAsync(e => e.Id == id);
+            if (@event == null) return NotFound();
 
-            var @event = await _context.Events
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@event == null)
-            {
-                return NotFound();
-            }
+            var organizer = await _context.Users.FirstOrDefaultAsync(u => u.Id == @event.CreatedBy);
+
+            var organizerIdentity = organizer != null
+                ? await _userManager.FindByEmailAsync(organizer.Email)
+                : null;
+
+            ViewBag.OrganizerName = organizer?.Username ?? organizerIdentity?.UserName ?? "Unknown Organizer";
+            ViewBag.IsVerifiedOrganizer = organizer?.IsVerifiedOrganizer ?? false;
+
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            ViewBag.IsGoing = currentUser != null && await _context.EventAttendances
+                .AnyAsync(a => a.EventId == id && a.UserId == currentUser.Id);
 
             return View(@event);
         }
+
 
         public IActionResult Create()
         {
