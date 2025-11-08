@@ -19,20 +19,24 @@
                 <div class="card-body">
                     <h5 class="card-title mb-3 text-center">🔍 Filters</h5>
 
-                    <form method="get" action="@Url.Action("Index", "Home")" class="needs-validation" novalidate>
+                    <form method="get" action="@Url.Action("Index", "Home")">
+                        <!-- Пошук -->
                         <div class="mb-3">
                             <input type="text" name="searchQuery" class="form-control rounded-pill px-3"
-                                   value="@Context.Request.Query["searchQuery"]" placeholder="Search event name..." />
+                                   value="@Context.Request.Query["searchQuery"]"
+                                   placeholder="Search event name..." />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Category</label>
-                            <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                            <select name="categoryId" class="form-select">
                                 <option value="">All Categories</option>
                                 @foreach (var category in categories)
                                 {
-                                    var selected = Context.Request.Query["categoryId"] == category.Id.ToString() ? "selected" : "";
-                                    @category
+                                    <option value="@category.Id"
+                                            selected="@(Context.Request.Query["categoryId"] == category.Id.ToString())">
+                                        @category.Name
+                                    </option>
                                 }
                             </select>
                         </div>
@@ -50,7 +54,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-4">
+                        <div class="row mb-3">
                             <div class="col">
                                 <label class="form-label fw-semibold">Min Price</label>
                                 <input type="number" name="minPrice" class="form-control"
@@ -61,6 +65,16 @@
                                 <input type="number" name="maxPrice" class="form-control"
                                        value="@Context.Request.Query["maxPrice"]" placeholder="1000" />
                             </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Sort By</label>
+                            <select name="sortBy" class="form-select">
+                                <option value="date_asc" selected="@(ViewBag.SortBy == "date_asc")">Date ↑</option>
+                                <option value="date_desc" selected="@(ViewBag.SortBy == "date_desc")">Date ↓</option>
+                                <option value="price_asc" selected="@(ViewBag.SortBy == "price_asc")">Price ↑</option>
+                                <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">Price ↓</option>
+                            </select>
                         </div>
 
                         <div class="d-grid gap-2">

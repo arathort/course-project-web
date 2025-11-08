@@ -21,13 +21,21 @@ namespace Barabas.Controllers
             _eventCategoryService = eventCategoryService;
         }
 
-        public async Task<IActionResult> Index(int? categoryId, DateTime? dateFrom, DateTime? dateTo, float? minPrice, float? maxPrice, string searchQuery)
+        public async Task<IActionResult> Index(
+            int? categoryId,
+            DateTime? dateFrom,
+            DateTime? dateTo,
+            float? minPrice,
+            float? maxPrice,
+            string searchQuery,
+            string sortBy = "date_asc" 
+        )
         {
             IEnumerable<Event> events;
 
             IEnumerable<EventCategory> categories = _eventCategoryService.GetEventsCategories();
             ViewBag.Categories = categories;
-
+            ViewBag.SortBy = sortBy;
             events = await _eventService.GetEventsAsync();
 
             if (categoryId.HasValue) events = events.Where(e => e.EventCategoryId == categoryId.Value);
@@ -37,7 +45,13 @@ namespace Barabas.Controllers
             if (maxPrice.HasValue) events = events.Where(e => e.Price <= maxPrice.Value);
             if (!string.IsNullOrEmpty(searchQuery))
                 events = events.Where(e => e.Name.Contains(searchQuery));
-       
+            events = sortBy switch
+            {
+                "date_desc" => events.OrderByDescending(e => e.Date),
+                "price_asc" => events.OrderBy(e => e.Price),
+                "price_desc" => events.OrderByDescending(e => e.Price),
+                _ => events.OrderBy(e => e.Date) 
+            };
             return View(events);
         }
 

@@ -3,14 +3,9 @@ using Barabas.Repositories.TicketRepository;
 
 namespace Barabas.Services.TicketService
 {
-    public class TicketService : ITicketService
+    public class TicketService(ITicketRepository ticketRepository) : ITicketService
     {
-        private readonly ITicketRepository _ticketRepository;
-
-        public TicketService(ITicketRepository ticketRepository)
-        {
-            _ticketRepository = ticketRepository;
-        }
+        private readonly ITicketRepository _ticketRepository = ticketRepository;
 
         public async Task<List<Ticket>> GetAvailableTickets(int eventId)
         {
