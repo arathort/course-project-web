@@ -5,76 +5,76 @@ using Barabas.Services.EventService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace Barabas.Areas.Manager.Controllers
 {
     [Authorize(Roles = "Manager,Admin")]
     [Area("Manager")]
-    public class EventsController : Controller
+    public class EventsController(
+        IEventService eventService,
+        ITicketRepository ticketRepository,
+        IEventCategoryService eventCategoryService) : Controller
     {
-        private readonly IEventService _eventService;
-        private readonly ITicketRepository _ticketRepository;
-        private readonly IEventCategoryService _eventCategoryService;
+        private readonly IEventService _eventService = eventService;
+        private readonly ITicketRepository _ticketRepository = ticketRepository;
+        private readonly IEventCategoryService _eventCategoryService = eventCategoryService;
 
-        public EventsController(IEventService eventService, ITicketRepository ticketRepository, IEventCategoryService eventCategoryService)
-        {
-            _eventService = eventService;
-            _ticketRepository = ticketRepository;
-            _eventCategoryService = eventCategoryService;
-        }
-
-        // GET: Manager/Events
         public async Task<IActionResult> Index()
         {
             return View(await _eventService.GetEventsAsync());
         }
 
-        // GET: Manager/Events/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var @event = await _eventService.GetEventById((int)id);
-            if (@event == null)
-            {
-                return NotFound();
-            }
-
-            return View(@event);
-        }
-
         public IActionResult Create()
         {
-            var categories = _eventCategoryService.GetEventsCategories();
-            ViewBag.EventCategories = categories;
+            ViewBag.EventCategories = _eventCategoryService.GetEventsCategories();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-           [Bind("Id,Name,Description,Location,Date,Price,EventCategoryId")] Event @event,
-           int TicketCount,
-           IFormFile ImageFile)
+            [Bind("Id,Name,Description,Location,Date,Price,EventCategoryId")] Event @event,
+            int TicketCount,
+            IFormFile? ImageFile)
         {
-            if (@event.Date.Kind == DateTimeKind.Unspecified)
+            if (TicketCount <= 0)
             {
-                @event.Date = DateTime.SpecifyKind(@event.Date, DateTimeKind.Utc);
+                ModelState.AddModelError("TicketCount", "Ticket count must be greater than zero.");
             }
 
-            @event.CreatedBy = 0;
+            if (@event.Date <= DateTime.UtcNow)
+            {
+                ModelState.AddModelError("Date", "Event date must be in the future.");
+            }
+
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(ImageFile.FileName).ToLowerInvariant();
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+
+                if (!allowedExtensions.Contains(ext))
+                {
+                    ModelState.AddModelError("Image", "Invalid image format. Allowed: JPG, PNG, GIF.");
+                }
+
+                if (ImageFile.Length > 2 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("Image", "Image size must be less than 2 MB.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.EventCategories = _eventCategoryService.GetEventsCategories();
+                return View(@event);
+            }
 
             if (ImageFile != null && ImageFile.Length > 0)
             {
                 var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/events");
-                if (!Directory.Exists(uploads))
-                    Directory.CreateDirectory(uploads);
+                Directory.CreateDirectory(uploads);
 
-                var fileName = Guid.NewGuid() + Path.GetExtension(ImageFile.FileName);
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(ImageFile.FileName)}";
                 var filePath = Path.Combine(uploads, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -85,117 +85,73 @@ namespace Barabas.Areas.Manager.Controllers
                 @event.Image = "/images/events/" + fileName;
             }
 
-            if (ModelState.IsValid)
+            @event.CreatedBy = 0;
+            @event.Date = DateTime.SpecifyKind(@event.Date, DateTimeKind.Utc);
+
+            await _eventService.Add(@event);
+
+            for (int i = 1; i <= TicketCount; i++)
             {
-                await _eventService.Add(@event);
-
-                for (int i = 1; i <= TicketCount; i++)
+                Ticket ticket = new()
                 {
-                    Ticket ticket = new()
-                    {
-                        EventId = @event.Id,
-                        SeatNumber = i,
-                        IsActive = true,
-                    };
-                    await _ticketRepository.Add(ticket);
-                }
-
-                return RedirectToAction(nameof(Index));
+                    EventId = @event.Id,
+                    SeatNumber = i,
+                    IsActive = true,
+                };
+                await _ticketRepository.Add(ticket);
             }
 
-            ViewBag.EventCategories = _eventCategoryService.GetEventsCategories();
-            return View(@event);
+            TempData["Success"] = "Event created successfully!";
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Manager/Events/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var @event = await _eventService.GetEventById((int)id);
             if (@event == null)
-            {
                 return NotFound();
-            }
 
             ViewBag.EventCategories = _eventCategoryService.GetEventsCategories();
-
             return View(@event);
         }
 
-
-        // POST: Manager/Events/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name,Description,Location,Date,Image,CreatedBy,Price,EventCategoryId")] Event @event)
+        public async Task<IActionResult> EditAsync(int id,
+            [Bind("Id,Name,Description,Location,Date,Image,CreatedBy,Price,EventCategoryId")] Event @event)
         {
             if (id != @event.Id)
-            {
                 return NotFound();
-            }
-            if (@event.Date.Kind == DateTimeKind.Unspecified)
-            {
-                @event.Date = DateTime.SpecifyKind(@event.Date, DateTimeKind.Utc);
-            }
-            else if (@event.Date.Kind == DateTimeKind.Local)
-            {
-                @event.Date = @event.Date.ToUniversalTime();
-            }
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    await _eventService.Update(@event);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await EventExists(@event.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(@event);
-        }
 
-        // GET: Manager/Events/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
+            if (@event.Date <= DateTime.UtcNow)
             {
-                return NotFound();
+                ModelState.AddModelError("Date", "Event date must be in the future.");
             }
 
-            var @event = await _eventService.GetEventById((int)id);
-            if (@event == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                ViewBag.EventCategories = _eventCategoryService.GetEventsCategories();
+                return View(@event);
             }
 
-            return View(@event);
-        }
+            @event.Date = DateTime.SpecifyKind(@event.Date, DateTimeKind.Utc);
 
-        // POST: Manager/Events/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var @event = await _eventService.GetEventById((int)id);
-            if (@event != null)
+            try
             {
-                await _eventService.Remove(@event);
+                await _eventService.Update(@event);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await EventExists(@event.Id))
+                    return NotFound();
+                else
+                    throw;
             }
 
+            TempData["Success"] = "Event updated successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -203,7 +159,5 @@ namespace Barabas.Areas.Manager.Controllers
         {
             return await _eventService.GetEventById(id) != null;
         }
-
-
     }
 }

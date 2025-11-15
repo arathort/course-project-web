@@ -37,8 +37,8 @@
 
                     <div class="col-md-6">
                         <label asp-for="Date" class="form-label fw-semibold">Date & Time</label>
-                        <input asp-for="Date" type="datetime-local" class="form-control" />
-                        <span asp-validation-for="Date" class="text-danger small"></span>
+                        <input asp-for="Date" type="datetime-local" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                        <span asp-validation-for="Date" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
